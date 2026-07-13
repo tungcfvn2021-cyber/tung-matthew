@@ -5,7 +5,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   FADE: "Fade",
   CUT: "Cắt & Tạo kiểu",
   STYLING: "Vuốt tạo kiểu",
-  PERM: "Uốn",
+  PERM: "Uốn / Ép",
   COLOR: "Nhuộm",
   BLEACH: "Tẩy",
   SHAVE: "Cạo mặt",

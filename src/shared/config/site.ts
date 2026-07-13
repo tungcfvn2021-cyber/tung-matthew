@@ -13,19 +13,19 @@ export const site = {
   city: "Vũng Tàu",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
 
-  // NAP — cập nhật khi có địa chỉ tiệm chính thức
-  phone: "",
-  addressLine: "",
+  // NAP — phải khớp Google Business Profile
+  phone: "0345234671",
+  addressLine: "1048 F11",
   ward: "",
   city_full: "Vũng Tàu",
   country: "VN",
 
   socials: {
-    tiktok: "",
-    facebook: "",
+    tiktok: "https://www.tiktok.com/@zzz1.9.9.9",
+    facebook: "https://www.facebook.com/tungcfvn",
     instagram: "",
-    zalo: "",
-    messenger: "",
+    zalo: "https://zalo.me/0345234671",
+    messenger: "https://m.me/tungcfvn",
   },
 } as const;
 

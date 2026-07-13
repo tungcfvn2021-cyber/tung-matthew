@@ -7,6 +7,7 @@ const nav = [
   { href: "/admin", label: "Tổng quan" },
   { href: "/admin/bookings", label: "Booking" },
   { href: "/admin/khach-hang", label: "Khách hàng" },
+  { href: "/admin/lookbook", label: "Lookbook" },
 ] as const;
 
 export default async function AdminLayout({

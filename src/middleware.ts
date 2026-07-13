@@ -8,7 +8,9 @@ import { getSessionCookie } from "better-auth/cookies";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/admin/login") return NextResponse.next();
+  if (pathname === "/admin/login" || pathname === "/admin/setup") {
+    return NextResponse.next();
+  }
 
   const sessionCookie = getSessionCookie(req);
   if (!sessionCookie) {

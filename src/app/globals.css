@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/* ============================================================
+   DESIGN TOKENS — Tùng Matthew Barber
+   Bảng màu chốt ở Bước 8: đen ám nâu ấm / kem / vàng thau.
+   Khai báo trong @theme -> sinh utility (bg-ink, text-gold, font-display...).
+   ============================================================ */
+@theme {
+  --color-ink: #0c0b09;
+  --color-ink-2: #141210;
+  --color-panel: #191612;
+  --color-paper: #f5f2ec;
+  --color-smoke: #a9a399;
+  --color-smoke-2: #78736a;
+  --color-gold: #c9a227;
+  --color-gold-soft: #e4c766;
+
+  --color-line: rgba(245, 242, 236, 0.1);
+  --color-line-gold: rgba(201, 162, 39, 0.2);
+
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui,
+    sans-serif;
+
+  --radius-brand: 2px;
+}
+
+/* Thương hiệu cam kết Dark Mode làm bản sắc chính (Bước 1/8).
+   Theme sáng (kem) sẽ bổ sung ở sprint hoàn thiện. */
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* ── Reveal khi tải trang (CSS thuần — 0 JS, tốt cho LCP) ── */
+.tm-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: tm-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.tm-d1 { animation-delay: 0.05s; }
+.tm-d2 { animation-delay: 0.15s; }
+.tm-d3 { animation-delay: 0.28s; }
+.tm-d4 { animation-delay: 0.4s; }
+.tm-d5 { animation-delay: 0.52s; }
+.tm-d6 { animation-delay: 0.64s; }
+
+@keyframes tm-rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.tm-scroll-tick {
+  animation: tm-sink 1.8s ease-in-out infinite;
+}
+@keyframes tm-sink {
+  0%, 100% { transform: translateY(-4px); opacity: 0.4; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .tm-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

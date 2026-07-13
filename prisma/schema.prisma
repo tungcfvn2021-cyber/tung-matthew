@@ -1,0 +1,389 @@
+// Tùng Matthew Barber — Prisma schema
+// Kiến trúc multi-tenant (Shop -> Barber/Service/Booking...) sẵn sàng thành chuỗi.
+// Better Auth (Session/Account/Verification) sẽ được thêm ở Sprint 4.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── ENUMS ───────────────────────────
+enum Role {
+  OWNER
+  ADMIN
+  BARBER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ConfirmChannel {
+  ZALO
+  PHONE
+  MESSENGER
+  WEB
+}
+
+enum ServiceCategory {
+  FADE
+  CUT
+  STYLING
+  PERM
+  COLOR
+  BLEACH
+  SHAVE
+  MASSAGE
+  COMBO
+}
+
+enum FaceShape {
+  OVAL
+  ROUND
+  SQUARE
+  OBLONG
+  HEART
+  DIAMOND
+  TRIANGLE
+}
+
+enum LeadSource {
+  TIKTOK
+  FACEBOOK
+  INSTAGRAM
+  GOOGLE
+  ZALO
+  DIRECT
+  OTHER
+}
+
+// ─────────────────────────── SHOP (tenant) ───────────────────────────
+model Shop {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  tagline           String?
+  phone             String
+  zaloUrl           String?
+  messengerUrl      String?
+  facebookUrl       String?
+  tiktokUrl         String?
+  instagramUrl      String?
+  addressLine       String
+  ward              String?
+  district          String?
+  city              String   @default("Vũng Tàu")
+  latitude          Float?
+  longitude         Float?
+  googlePlaceId     String?
+  googleRating      Float?
+  googleReviewCount Int?     @default(0)
+
+  barbers      Barber[]
+  services     Service[]
+  bookings     Booking[]
+  customers    Customer[]
+  workingHours WorkingHour[]
+  gallery      GalleryItem[]
+  reviews      Review[]
+  posts        BlogPost[]
+  users        User[]
+  leads        Lead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────── BARBER ───────────────────────────
+model Barber {
+  id        String    @id @default(cuid())
+  shopId    String
+  shop      Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  bio       String?
+  avatarUrl String?
+  yearsExp  Int?
+  isActive  Boolean   @default(true)
+  bookings  Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shopId, slug])
+  @@index([shopId])
+}
+
+// ─────────────────────────── SERVICE ───────────────────────────
+model Service {
+  id           String           @id @default(cuid())
+  shopId       String
+  shop         Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name         String
+  slug         String
+  category     ServiceCategory
+  description  String?
+  suitableFor  String?
+  process      String?
+  price        Int
+  priceMax     Int?
+  durationMin  Int
+  imageUrl     String?
+  isFeatured   Boolean          @default(false)
+  isActive     Boolean          @default(true)
+  sortOrder    Int              @default(0)
+  bookingLinks BookingService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shopId, slug])
+  @@index([shopId, category])
+}
+
+// ─────────────────────────── CUSTOMER (CRM) ───────────────────────────
+model Customer {
+  id            String     @id @default(cuid())
+  shopId        String
+  shop          Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name          String
+  phone         String
+  zalo          String?
+  facebook      String?
+  tiktok        String?
+  notes         String?
+  tags          String[]
+  photoConsent  Boolean    @default(false)
+  loyaltyPoints Int        @default(0)
+  lastVisitAt   DateTime?
+  nextRemindAt  DateTime?
+  source        LeadSource @default(DIRECT)
+  bookings      Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shopId, phone])
+  @@index([shopId, nextRemindAt])
+}
+
+// ─────────────────────────── BOOKING (trung tâm) ───────────────────────────
+model Booking {
+  id             String           @id @default(cuid())
+  shopId         String
+  shop           Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  barberId       String?
+  barber         Barber?          @relation(fields: [barberId], references: [id])
+  customerId     String?
+  customer       Customer?        @relation(fields: [customerId], references: [id])
+
+  guestName      String
+  guestPhone     String
+  guestNote      String?
+
+  startAt        DateTime
+  endAt          DateTime
+  status         BookingStatus    @default(PENDING)
+  confirmChannel ConfirmChannel   @default(ZALO)
+  confirmedAt    DateTime?
+  cancelledAt    DateTime?
+  depositAmount  Int?
+  source         LeadSource       @default(DIRECT)
+
+  services BookingService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shopId, startAt])
+  @@index([shopId, status])
+  @@index([barberId, startAt])
+}
+
+model BookingService {
+  id               String  @id @default(cuid())
+  bookingId        String
+  booking          Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  serviceId        String
+  service          Service @relation(fields: [serviceId], references: [id])
+  priceSnapshot    Int
+  durationSnapshot Int
+
+  @@index([bookingId])
+}
+
+// ─────────────────────────── WORKING HOURS ───────────────────────────
+model WorkingHour {
+  id        String  @id @default(cuid())
+  shopId    String
+  shop      Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  weekday   Int // 0 = CN ... 6 = T7
+  openTime  String // "09:00"
+  closeTime String // "21:00"
+  isClosed  Boolean @default(false)
+
+  @@unique([shopId, weekday])
+}
+
+// ─────────────────────────── GALLERY / LOOKBOOK ───────────────────────────
+model GalleryItem {
+  id           String           @id @default(cuid())
+  shopId       String
+  shop         Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  title        String?
+  category     ServiceCategory?
+  beforeUrl    String?
+  afterUrl     String
+  blurHash     String?
+  tiktokUrl    String?
+  instagramUrl String?
+  hasConsent   Boolean          @default(true)
+  sortOrder    Int              @default(0)
+  isPublished  Boolean          @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([shopId, category])
+}
+
+// ─────────────────────────── REVIEW ───────────────────────────
+model Review {
+  id         String    @id @default(cuid())
+  shopId     String
+  shop       Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  authorName String
+  rating     Int
+  content    String
+  source     String    @default("google")
+  externalId String?
+  avatarUrl  String?
+  reviewedAt DateTime?
+  isFeatured Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([shopId, isFeatured])
+}
+
+// ─────────────────────────── LEAD (link-in-bio) ───────────────────────────
+model Lead {
+  id        String     @id @default(cuid())
+  shopId    String
+  shop      Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name      String?
+  phone     String?
+  source    LeadSource @default(TIKTOK)
+  utm       Json?
+  createdAt DateTime   @default(now())
+
+  @@index([shopId, source])
+}
+
+// ─────────────────────────── FACE SHAPE GUIDE (AI tĩnh v1) ───────────────────────────
+model FaceShapeGuide {
+  id              String    @id @default(cuid())
+  faceShape       FaceShape @unique
+  label           String
+  description     String
+  recommendedCuts String[]
+  avoidCuts       String[]
+  imageUrl        String?
+}
+
+// ─────────────────────────── BLOG (Phase 2) ───────────────────────────
+model BlogPost {
+  id          String    @id @default(cuid())
+  shopId      String
+  shop        Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  title       String
+  slug        String
+  excerpt     String?
+  content     String
+  coverUrl    String?
+  category    String?
+  metaTitle   String?
+  metaDesc    String?
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shopId, slug])
+  @@index([shopId, isPublished, publishedAt])
+}
+
+// ─────────────────────────── USER (admin) + Better Auth ───────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  shopId        String?
+  shop          Shop?     @relation(fields: [shopId], references: [id])
+  email         String    @unique
+  name          String?
+  role          Role      @default(ADMIN)
+  emailVerified Boolean   @default(false)
+  image         String?
+
+  sessions Session[]
+  accounts Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shopId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([identifier])
+}

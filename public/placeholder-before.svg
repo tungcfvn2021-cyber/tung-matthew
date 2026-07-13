@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#141210"/>
+  <circle cx="400" cy="360" r="150" fill="none" stroke="rgba(168,163,153,.25)" stroke-width="2"/>
+  <text x="400" y="375" text-anchor="middle" font-family="sans-serif" font-size="120" font-weight="700" fill="rgba(168,163,153,.3)">TM</text>
+  <text x="400" y="600" text-anchor="middle" font-family="sans-serif" font-size="30" letter-spacing="6" fill="#5f5e5a">TRƯỚC KHI CẮT</text>
+</svg>

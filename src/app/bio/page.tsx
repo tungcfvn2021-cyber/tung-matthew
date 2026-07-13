@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { site } from "@/shared/config/site";
 import {
   PhoneIcon,
@@ -31,18 +32,28 @@ export default function BioPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center px-6 py-12">
       <div
-        className="flex h-24 w-24 items-center justify-center rounded-full border border-line-gold"
+        className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-line-gold"
         style={{
           background:
             "radial-gradient(120% 90% at 50% 15%, rgba(201,162,39,.18), transparent 55%)",
         }}
       >
-        <span
-          className="font-display text-3xl font-bold text-transparent"
-          style={{ WebkitTextStroke: "1.2px rgba(201,162,39,.5)" }}
-        >
-          TM
-        </span>
+        {site.portraitUrl ? (
+          <Image
+            src={site.portraitUrl}
+            alt="Tùng Matthew"
+            fill
+            sizes="96px"
+            className="object-cover"
+          />
+        ) : (
+          <span
+            className="font-display text-3xl font-bold text-transparent"
+            style={{ WebkitTextStroke: "1.2px rgba(201,162,39,.5)" }}
+          >
+            TM
+          </span>
+        )}
       </div>
 
       <h1 className="mt-5 font-display text-2xl font-bold">Tùng Matthew</h1>

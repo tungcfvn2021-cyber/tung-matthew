@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { site } from "@/shared/config/site";
 import { QuickContacts } from "@/shared/ui/marketing/quick-contacts";
 import { ArrowRightIcon, ScissorsIcon } from "@/shared/ui/icons";
 
@@ -92,23 +94,36 @@ export function Hero() {
               "radial-gradient(120% 90% at 50% 15%, rgba(201,162,39,.14), transparent 55%), linear-gradient(160deg,#1c1813,#0b0a08 70%)",
           }}
         >
-          <ScissorsIcon
-            aria-hidden
-            className="absolute -right-10 -top-10 h-[220px] w-[220px] rotate-12 text-gold opacity-10"
-          />
+          {site.portraitUrl ? (
+            <Image
+              src={site.portraitUrl}
+              alt="Tùng Matthew — Barber Vũng Tàu"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="object-cover"
+            />
+          ) : (
+            <>
+              <ScissorsIcon
+                aria-hidden
+                className="absolute -right-10 -top-10 h-[220px] w-[220px] rotate-12 text-gold opacity-10"
+              />
+              <span
+                className="select-none font-display text-[5rem] font-bold leading-[0.9] tracking-tight text-transparent sm:text-[7rem]"
+                style={{ WebkitTextStroke: "1.5px rgba(201,162,39,.35)" }}
+              >
+                TM
+              </span>
+              <span className="absolute bottom-4 left-0 right-0 text-center text-[11px] uppercase tracking-[0.18em] text-smoke-2">
+                Ảnh chân dung của bạn
+              </span>
+            </>
+          )}
           <Corner className="left-3 top-3 border-b-0 border-r-0" />
           <Corner className="right-3 top-3 border-b-0 border-l-0" />
           <Corner className="bottom-3 left-3 border-r-0 border-t-0" />
           <Corner className="bottom-3 right-3 border-l-0 border-t-0" />
-          <span
-            className="select-none font-display text-[5rem] font-bold leading-[0.9] tracking-tight text-transparent sm:text-[7rem]"
-            style={{ WebkitTextStroke: "1.5px rgba(201,162,39,.35)" }}
-          >
-            TM
-          </span>
-          <span className="absolute bottom-4 left-0 right-0 text-center text-[11px] uppercase tracking-[0.18em] text-smoke-2">
-            Ảnh chân dung của bạn
-          </span>
         </div>
       </div>
 

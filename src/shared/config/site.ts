@@ -13,6 +13,10 @@ export const site = {
   city: "Vũng Tàu",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
 
+  // Ảnh chân dung barber (đặt file vào public/, hoặc dùng URL Cloudinary).
+  // Để trống "" -> hiện monogram TM. Đổi thành "/portrait.jpg" khi đã có ảnh.
+  portraitUrl: "",
+
   // NAP — phải khớp Google Business Profile
   phone: "0345234671",
   addressLine: "1048 F11",

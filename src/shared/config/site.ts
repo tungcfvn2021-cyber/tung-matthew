@@ -11,7 +11,8 @@ export const site = {
   description:
     "Barber nam cao cấp tại Vũng Tàu. Fade, Undercut, Mohican chuẩn form — đặt lịch trực tiếp với Tùng Matthew.",
   city: "Vũng Tàu",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  // Tên miền chính thức (dùng cho canonical, OpenGraph, sitemap).
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.tungmatthew.pro.vn",
 
   // Ảnh chân dung barber (đặt file vào public/, hoặc dùng URL Cloudinary).
   // Để trống "" -> hiện monogram TM. Đổi thành "/portrait.jpg" khi đã có ảnh.

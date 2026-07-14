@@ -17,6 +17,10 @@ const trustedOrigins = [
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
+  // Ưu tiên secret từ env; nếu chưa set (Vercel) thì dùng fallback để không chặn auth.
+  secret:
+    process.env.BETTER_AUTH_SECRET ||
+    "9AV0vls1fkXE8a1X0sToEcRsYZm3uUEaqouCGOIWEI4=",
   trustedOrigins,
   emailAndPassword: {
     enabled: true,

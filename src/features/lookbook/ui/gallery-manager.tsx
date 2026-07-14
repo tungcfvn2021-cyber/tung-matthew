@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { upload } from "@vercel/blob/client";
 import {
-  getUploadSignature,
   createGalleryItem,
   deleteGalleryItem,
   toggleGalleryPublish,
@@ -34,28 +34,14 @@ export function GalleryManager({ items }: { items: Item[] }) {
     if (!file) return;
     setUploading(true);
     setError(null);
-    const sig = await getUploadSignature();
-    if (!sig.ok) {
-      setError(sig.error.message);
-      setUploading(false);
-      return;
-    }
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("api_key", sig.data.apiKey);
-    fd.append("timestamp", String(sig.data.timestamp));
-    fd.append("signature", sig.data.signature);
-    fd.append("folder", sig.data.folder);
     try {
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${sig.data.cloudName}/image/upload`,
-        { method: "POST", body: fd },
-      );
-      const data = await res.json();
-      if (data.secure_url) setAfterUrl(data.secure_url);
-      else setError("Tải ảnh thất bại.");
-    } catch {
-      setError("Không kết nối được Cloudinary.");
+      const blob = await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/blob/upload",
+      });
+      setAfterUrl(blob.url);
+    } catch (err) {
+      setError("Tải ảnh thất bại: " + (err as Error).message);
     }
     setUploading(false);
   }

@@ -5,29 +5,11 @@ import type { ServiceCategory } from "@prisma/client";
 import { prisma } from "@/shared/lib/prisma";
 import { getSession } from "@/shared/lib/auth-guard";
 import { site } from "@/shared/config/site";
-import { signUpload, type UploadSignature } from "@/shared/lib/cloudinary";
 import { ok, fail, ErrorCode, type ActionResult } from "@/shared/types/action";
 
 async function assertAdmin(): Promise<ActionResult<never> | null> {
   const session = await getSession();
   return session ? null : fail(ErrorCode.UNAUTHORIZED, "Bạn cần đăng nhập.");
-}
-
-/** Ký chữ ký cho upload Cloudinary trực tiếp từ trình duyệt. */
-export async function getUploadSignature(): Promise<
-  ActionResult<UploadSignature>
-> {
-  const denied = await assertAdmin();
-  if (denied) return denied;
-
-  const sig = signUpload();
-  if (!sig) {
-    return fail(
-      ErrorCode.INTERNAL,
-      "Chưa cấu hình Cloudinary. Thêm CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET vào biến môi trường.",
-    );
-  }
-  return ok(sig);
 }
 
 export async function createGalleryItem(input: {

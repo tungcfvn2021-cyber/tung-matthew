@@ -15,7 +15,7 @@ export const site = {
 
   // Ảnh chân dung barber (đặt file vào public/, hoặc dùng URL Cloudinary).
   // Để trống "" -> hiện monogram TM. Đổi thành "/portrait.jpg" khi đã có ảnh.
-  portraitUrl: "",
+  portraitUrl: "/portrait.jpg",
 
   // NAP — phải khớp Google Business Profile
   phone: "0345234671",

@@ -254,6 +254,14 @@ model GalleryItem {
   @@index([shopId, category])
 }
 
+// ─────────────────────────── IMAGE ASSET (ảnh lưu thẳng trong DB) ───────────────────────────
+model ImageAsset {
+  id          String   @id @default(cuid())
+  data        Bytes
+  contentType String
+  createdAt   DateTime @default(now())
+}
+
 // ─────────────────────────── REVIEW ───────────────────────────
 model Review {
   id         String    @id @default(cuid())

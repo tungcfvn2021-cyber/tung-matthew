@@ -2,12 +2,33 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
 import {
   createGalleryItem,
   deleteGalleryItem,
   toggleGalleryPublish,
 } from "@/features/lookbook/ui/admin-actions";
+
+/** Nén ảnh ngay trên trình duyệt trước khi gửi lên server. */
+async function compressImage(file: File, maxSize = 1400, quality = 0.82) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * scale);
+  const h = Math.round(bitmap.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Trình duyệt không hỗ trợ nén ảnh");
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  const blob: Blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("Nén ảnh thất bại"))),
+      "image/jpeg",
+      quality,
+    ),
+  );
+  return new File([blob], "anh.jpg", { type: "image/jpeg" });
+}
 import { CATEGORY_ORDER, categoryLabel } from "@/features/services/domain/category";
 
 type Item = {
@@ -35,11 +56,13 @@ export function GalleryManager({ items }: { items: Item[] }) {
     setUploading(true);
     setError(null);
     try {
-      const blob = await upload(file.name, file, {
-        access: "public",
-        handleUploadUrl: "/api/blob/upload",
-      });
-      setAfterUrl(blob.url);
+      const compressed = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", compressed);
+      const res = await fetch("/api/images", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok && data.url) setAfterUrl(data.url);
+      else setError(data.error ?? "Tải ảnh thất bại.");
     } catch (err) {
       setError("Tải ảnh thất bại: " + (err as Error).message);
     }

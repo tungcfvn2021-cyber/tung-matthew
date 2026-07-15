@@ -17,5 +17,9 @@ export async function GET() {
     blobLikeKeys: Object.keys(process.env).filter((k) =>
       k.toUpperCase().includes("BLOB"),
     ),
+    hasOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+    vercelKeys: Object.keys(process.env)
+      .filter((k) => k.toUpperCase().startsWith("VERCEL"))
+      .sort(),
   });
 }

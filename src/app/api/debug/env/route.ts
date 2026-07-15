@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/shared/lib/prisma";
 
 /**
  * Chẩn đoán tạm thời: chỉ trả về CÓ/KHÔNG của biến môi trường (không lộ giá trị).
@@ -7,7 +8,17 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  // Kiểm tra bảng lưu ảnh đã được tạo trong DB chưa
+  let imageTable: string;
+  try {
+    const n = await prisma.imageAsset.count();
+    imageTable = `OK (${n} ảnh)`;
+  } catch (e) {
+    imageTable = "LỖI: " + (e as Error).message.split("\n")[0];
+  }
+
   return NextResponse.json({
+    imageTable,
     commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
     env: process.env.VERCEL_ENV ?? null,
     hasBlobToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
